@@ -14,8 +14,9 @@ async def forward(e, task):
     for chat in target_chats:
         try:
             if bl:
-                if any((bl_word in word.lower()) for (word, bl_word) in (e.message.message.split(), bl_words)):
-                    continue
+                if bl_words:
+                    if any([(bl_word in e.message.message.lower()) for bl_word in bl_words]):
+                        continue
             if head:
                 await e.message.forward_to(chat)
             else:
@@ -56,8 +57,14 @@ async def msgedit(e: events.MessageEdited.Event):
 async def msgedit(e, task):
     cross_ids = task["crossids"]
     data = cross_ids[e.chat_id][e.id]
+    bl_words = task["blacklist_words"]
+    bl = True if task.get("has_to_blacklist") else False
     for chat in data.keys():
         try:
+            if bl:
+                if bl_words:
+                    if any([(bl_word in e.message.message.lower()) for bl_word in bl_words]):
+                        continue
             msg = await bot.get_messages(chat, ids=data[chat])
             await msg.edit(e.text)
         except BaseException:
