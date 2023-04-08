@@ -7,11 +7,14 @@ async def get_work(work: str):
 
 async def setup_work(work_name: str, source: list, target: list):
     data = {
+        "work_name": work_name,
         "source": source,
         "target": target,
         "show_forward_header": False,
         "delay": 0,
         "blacklist_words": [],
+        "crossids": {},
+        "has_to_edit": False,
         "has_to_blacklist": False,
         "has_to_forward": True
     }
@@ -26,7 +29,6 @@ async def get_target_chat_with_data(id: int):
             dst.append(CACHE[work])
     return dst
 
-
 async def edit_work(work_name: str, *args, **kwargs):
     raw_data = await get_work(work_name)
     if not raw_data:
@@ -35,7 +37,6 @@ async def edit_work(work_name: str, *args, **kwargs):
         raw_data[key] = kwargs[key]
     CACHE.update({work_name: raw_data})
     return await dB.set(work_name, str(raw_data))
-
 
 async def delete_work(work_name: str):
     if work_name in CACHE:

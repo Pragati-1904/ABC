@@ -33,6 +33,7 @@ async def _(e):
     data = await get_work(wrk_name)
     frsd = "🚫 Show Forward Header" if not data.get("show_forward_header") else "✅ Show Forward Header"
     ben = "Enable Blacklist" if not data.get("has_to_blacklist") else "Disable Blacklist"
+    een = "Enable Edit" if not data.get("has_to_edit") else "Disable Edit"
     button = [
         [
             Button.inline("Edit Name", data=f"ned_{wrk_name}"),
@@ -50,6 +51,7 @@ async def _(e):
             Button.inline("Edit Blacklist", data=f"bled_{wrk_name}"),
             Button.inline(ben, data=f"bkhas_{wrk_name}")
         ],
+        [Button.inline(een, data=f"ehas_{wrk_name}")],
         [Button.inline(frsd, data=f"hedfor_{wrk_name}")],
         [Button.inline("Delete This Task", data=f"delt_{wrk_name}")],
         [Button.inline("« BACK »", data=f"bek")]
@@ -225,3 +227,13 @@ async def _(e):
         return await e.edit("Succesfully Disabled The Blacklist Filter.", buttons=[[Button.inline("« BACK »", data=f"edwrk_{wrk_name}")]])
     await edit_work(work_name=wrk_name, has_to_blacklist=True)
     return await e.edit("Succesfully Enabled The Blacklist Filter.", buttons=[[Button.inline("« BACK »", data=f"edwrk_{wrk_name}")]])
+
+@bot.on(events.callbackquery.CallbackQuery(data=re.compile("ehas_(.*)")))
+async def _(e):
+    wrk_name = e.pattern_match.group(1).decode("utf-8")
+    wrk_data = await get_work(wrk_name)
+    if wrk_data.get("has_to_edit"):
+        await edit_work(work_name=wrk_name, has_to_edit=False)
+        return await e.edit("Succesfully Disabled The Edit Feature.", buttons=[[Button.inline("« BACK »", data=f"edwrk_{wrk_name}")]])
+    await edit_work(work_name=wrk_name, has_to_edit=True)
+    return await e.edit("Succesfully Enabled The Edit Feature.", buttons=[[Button.inline("« BACK »", data=f"edwrk_{wrk_name}")]])
